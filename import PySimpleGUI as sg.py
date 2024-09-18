@@ -60,3 +60,7 @@ def JSONデータ取得(動画ID, カーソル=None):
                 }
             }
         ])
+    
+def タイムスタンプ整形(秒数):
+    return str(timedelta(seconds=int(秒数)))
+
