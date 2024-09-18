@@ -27,3 +27,36 @@ def 動画ID抽出(url):
         return マッチ.group(1)
     else:
         raise ValueError("無効なTwitch URLです。有効な動画URLを入力してください。")
+def JSONデータ取得(動画ID, カーソル=None):
+    if カーソル is None:
+        return json.dumps([
+            {
+                "operationName": "VideoCommentsByOffsetOrCursor",
+                "variables": {
+                    "videoID": 動画ID,
+                    "contentOffsetSeconds": 0
+                },
+                "extensions": {
+                    "persistedQuery": {
+                        "version": 1,
+                        "sha256Hash": "b70a3591ff0f4e0313d126c6a1502d79a1c02baebb288227c582044aa76adf6a"
+                    }
+                }
+            }
+        ])
+    else:
+        return json.dumps([
+            {
+                "operationName": "VideoCommentsByOffsetOrCursor",
+                "variables": {
+                    "videoID": 動画ID,
+                    "cursor": カーソル
+                },
+                "extensions": {
+                    "persistedQuery": {
+                        "version": 1,
+                        "sha256Hash": "b70a3591ff0f4e0313d126c6a1502d79a1c02baebb288227c582044aa76adf6a"
+                    }
+                }
+            }
+        ])
