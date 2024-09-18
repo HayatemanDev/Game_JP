@@ -84,3 +84,38 @@ def コメント処理(データ, csvライター):
         print(json.dumps(データ, indent=2))
         return False, None
     
+
+
+def コメント取得(動画ID, window):
+    csvファイル名 = f"twitch_コメント_{動画ID}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+    try:
+        with open(csvファイル名, 'w', newline='', encoding='utf-8') as csvファイル:
+            csvライター = csv.writer(csvファイル)
+            csvライター.writerow(['整形済みタイムスタンプ', 'タイムスタンプ（秒）', 'ユーザー', 'メッセージ'])
+
+            セッション = requests.Session()
+            セッション.headers = {'Client-ID': 'kd1unb4b3q4t58fwlpcbzcbnm76a8fp', 'content-type': 'application/json'}
+            レスポンス = セッション.post("https://gql.twitch.tv/gql", JSONデータ取得(動画ID), timeout=10)
+            window['OUTPUT'].print("接続成功\n")
+            レスポンス.raise_for_status()
+            データ = レスポンス.json()
+            次ページあり, カーソル = コメント処理(データ, csvライター)
+
+            while 次ページあり and カーソル:
+                レスポンス = セッション.post("https://gql.twitch.tv/gql", JSONデータ取得(動画ID, カーソル), timeout=10)
+                レスポンス.raise_for_status()
+                データ = レスポンス.json()
+                次ページあり, カーソル = コメント処理(データ, csvライター)
+                if 次ページあり:
+                    window['OUTPUT'].print(".", end="")
+                    window.refresh()
+                    time.sleep(0.1)
+
+        window['OUTPUT'].print(f"\nコメントをCSVファイル '{csvファイル名}' に保存しました。")
+        return csvファイル名
+    except requests.exceptions.RequestException as e:
+        window['OUTPUT'].print(f"リクエスト中にエラーが発生しました: {e}")
+    except Exception as e:
+        window['OUTPUT'].print(f"予期しないエラーが発生しました: {e}")
+    return None
+
