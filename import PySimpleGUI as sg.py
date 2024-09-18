@@ -119,3 +119,10 @@ def コメント取得(動画ID, window):
         window['OUTPUT'].print(f"予期しないエラーが発生しました: {e}")
     return None
 
+def 秒数から時分秒へ変換(秒数):
+    return str(timedelta(seconds=int(秒数))).zfill(8)
+
+def 時分秒から秒数へ変換(時分秒):
+    時, 分, 秒 = map(int, 時分秒.split(':'))
+    return 時 * 3600 + 分 * 60 + 秒
+
