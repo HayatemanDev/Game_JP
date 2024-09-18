@@ -64,3 +64,23 @@ def JSONデータ取得(動画ID, カーソル=None):
 def タイムスタンプ整形(秒数):
     return str(timedelta(seconds=int(秒数)))
 
+
+
+def コメント処理(データ, csvライター):
+    try:
+        コメント一覧 = データ[0]['data']['video']['comments']['edges']
+        for コメント in コメント一覧:
+            メッセージ = コメント['node']['message']['fragments'][0]['text']
+            タイムスタンプ秒 = コメント['node']['contentOffsetSeconds']
+            整形済みタイムスタンプ = タイムスタンプ整形(タイムスタンプ秒)
+            ユーザー = コメント['node']['commenter']['displayName']
+            csvライター.writerow([整形済みタイムスタンプ, タイムスタンプ秒, ユーザー, メッセージ])
+        次ページあり = データ[0]['data']['video']['comments']['pageInfo']['hasNextPage']
+        次カーソル = コメント一覧[-1]['cursor'] if 次ページあり else None
+        return 次ページあり, 次カーソル
+    except (KeyError, IndexError, TypeError) as e:
+        print(f"データ処理中にエラーが発生しました: {e}")
+        print("受信したデータ:")
+        print(json.dumps(データ, indent=2))
+        return False, None
+    
